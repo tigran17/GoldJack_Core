@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GoldJack.Entities\GoldJack.Entities.csproj" />
+    <ProjectReference Include="..\GoldJack.Models\GoldJack.Models.csproj" />
+  </ItemGroup>
+
+</Project>
