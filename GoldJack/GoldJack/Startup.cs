@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using AutoMapper;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace GoldJack
 {
@@ -35,18 +38,21 @@ namespace GoldJack
                     .AllowCredentials());
             });
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
+            services.AddMvc().AddJsonOptions(options => {
+                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            });
             #region Dependency Injection
 
             services.AddTransient<IGameService, GameService>();
             services.AddTransient<IGameRepository, GameRepository>();
             services.AddDbContext<GJContext>(options => 
                 options.UseSqlServer(Configuration["ConnectionStrings:DefaultConnection"])
-            ); 
+            );
 
             #endregion
 
+            services.AddAutoMapper();
             services.AddOptions();
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
         }

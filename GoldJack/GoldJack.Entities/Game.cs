@@ -16,7 +16,9 @@ namespace GoldJack.Entities
 
         public double Bet { get; set; }
 
-        public string Range { get; set; }
+        public Int16 StartRange { get; set; }
+
+        public Int16 EndRange { get; set; }
 
         public bool IsWin { get; set; }
 

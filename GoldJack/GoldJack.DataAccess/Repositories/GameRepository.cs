@@ -37,9 +37,9 @@ namespace GoldJack.DataAccess.Repositories
             }
         }
 
-        public async Task<Game> StartGame(Game game)
+        public async Task<Game> SaveGame(Game game)
         {
-            var gameEntity = new Game();
+            Game gameEntity;
 
             using (_context)
             {

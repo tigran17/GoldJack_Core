@@ -9,7 +9,7 @@ namespace GoldJack.Interfaces.DAL
     public interface IGameRepository
     {
         Task<Game> GetGame(Game gameEntity);
-        Task<Game> StartGame(Game gameEntity);
+        Task<Game> SaveGame(Game gameEntity);
         Task<Coin> GetCoinByPosition(Coin coinEntity);
     }
 }
