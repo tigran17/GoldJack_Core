@@ -39,16 +39,34 @@ namespace GoldJack.Controllers
             
         }
 
-        [HttpGet]
-        public ActionResult<GameModel> GetGame()
+        [HttpGet("getgame")]
+        public async Task<ActionResult<GameModel>> GetGame()
         {
-            return new GameModel();
+            try
+            {
+                var result = await _gameService.GetGame();
+                return result;
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+            
         }
 
-        [HttpGet]
-        public ActionResult<bool> CashBack ()
+        [HttpPost("cashback")]
+        public async Task<bool> CashBackAsync (GameModel model)
         {
-            return true;
+            try
+            {
+                var result = await _gameService.CashBack(model);
+                return result;
+            }
+            catch(Exception e)
+            {
+                return false;
+            }
+            
         }
 
         [HttpPost("getcoin")]

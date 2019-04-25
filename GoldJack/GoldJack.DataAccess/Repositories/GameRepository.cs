@@ -17,40 +17,33 @@ namespace GoldJack.DataAccess.Repositories
         {
             _context = context;
         }
-        public async Task<Game> GetGame(Game game)
+        public async Task<Game> GetUserLastGame(int userId)
+        { 
+           var gameEntity = _context.Games.Where(x => x.UserId == userId).LastOrDefault();
+           return gameEntity;
+        }
+
+        public async Task<bool> UpdateGame(Game gameEntity)
         {
-            var gameEntity = new Game();
+            _context.Update<Game>(gameEntity);
 
-            using (_context)
-            {
-                gameEntity = _context.Games.Where(x => x.UserId == game.UserId).LastOrDefault();
+           await _context.SaveAsync();
 
-                if(gameEntity == null || gameEntity.IsEnded)
-                {
-                    return game;
-                }
-                else
-                {
-                    //TODO: Should be Implemented
-                    return game;
-                }
-            }
+            return true;
         }
 
         public async Task<Game> SaveGame(Game game)
         {
             Game gameEntity;
 
-            using (_context)
-            {
-                _context.Games.Add(game);
-                _context.SaveChanges();
+            
+            _context.Games.Add(game);
+            _context.SaveChanges();
 
-                gameEntity = _context.Games.Where(x => x.UserId == game.UserId)
+            gameEntity = _context.Games.Where(x => x.UserId == game.UserId)
                     .OrderByDescending(x => x.Id).FirstOrDefault();
 
-                SaveGameCoins(gameEntity);
-            }
+            SaveGameCoins(gameEntity);
 
             return gameEntity;
         }
@@ -72,6 +65,12 @@ namespace GoldJack.DataAccess.Repositories
             return coin;
         }
 
+        public async Task<Game> GetGameById(int gameId)
+        {
+            var gameEntity = _context.Games.Where(x => x.Id == gameId).FirstOrDefault();
+
+            return gameEntity;
+        }
 
         //private functions
         #region 

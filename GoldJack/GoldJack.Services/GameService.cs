@@ -22,16 +22,36 @@ namespace GoldJack.Services
             _gameRepository = gameRepository;
             _mapper = mapper;
         }
-        public async Task<GameModel> GetGame(GameModel model)
+        public async Task<GameModel> GetGame()
         {
             //TODO: Should initialize User
-            model.UserId = 6; //HARD CODE
+            var userId = 6; //HARD CODE
 
-            var gameEntity = _mapper.Map<Game>(model);
+            //var gameEntity = _mapper.Map<Game>(model);
 
-            await _gameRepository.GetGame(gameEntity);
+            var gameEntity = await _gameRepository.GetUserLastGame(userId);
+
+            var model = _mapper.Map<GameModel>(gameEntity);
 
             return model;
+        }
+
+        public async Task<bool> CashBack(GameModel model)
+        {
+            var gameEntity = _mapper.Map<Game>(model);
+
+            var game = await _gameRepository.GetGameById(gameEntity.Id);
+
+            if (game == null) return false;
+
+            game.IsCashback = true;
+            game.IsEnded = true;
+
+            //gameEntity Cashback to  User balance
+
+            var result = await _gameRepository.UpdateGame(game);
+
+            return result;
         }
 
         public async Task<GameModel> StartGame(GameModel model)

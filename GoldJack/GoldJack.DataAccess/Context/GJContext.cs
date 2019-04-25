@@ -1,8 +1,10 @@
 ﻿using GoldJack.Entities;
+using GoldJack.Interfaces.DAL;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace GoldJack.DataAccess.Context
 {
@@ -12,12 +14,6 @@ namespace GoldJack.DataAccess.Context
         {
 
         }
-
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    optionsBuilder.UseSqlServer(@"Server=(LocalDB)\MSSQLLocalDB;Database=GoldJack;Trusted_Connection=True;");
-
-        //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -31,6 +27,11 @@ namespace GoldJack.DataAccess.Context
         public DbSet<User> Users { get; set; }
 
         //public DbSet<GameCoins> GamesCoins { get; set; } 
+
+        public async Task SaveAsync()
+        {
+            await SaveChangesAsync();
+        }
 
     }
 }

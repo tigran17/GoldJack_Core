@@ -12,9 +12,8 @@ namespace GoldJack.Models
 
         public double Bet { get; set; }
 
-        public string Range { get; set; }
-
         public short StartRange { get; set; }
+
         public short EndRange { get; set; }
 
         public bool IsWin { get; set; }
