@@ -15,5 +15,6 @@ namespace GoldJack.Interfaces.DAL
         //Task SaveChanges();
         Task<Game> GetUserLastGame(int userId);
         Task<bool> UpdateGame(Game gameEntity);
+        Task UpdateCoin(Coin coinEntity);
     }
 }

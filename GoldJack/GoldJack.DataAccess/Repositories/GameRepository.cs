@@ -17,51 +17,51 @@ namespace GoldJack.DataAccess.Repositories
         {
             _context = context;
         }
+
+        public async Task<bool> UpdateGame(Game gameEntity)
+        {
+            _context.Update<Game>(gameEntity);
+
+            await _context.SaveAsync();
+
+            return true;
+        }
+
+        public async Task UpdateCoin(Coin coinEntity)
+        {
+            _context.Update<Coin>(coinEntity);
+
+            await _context.SaveAsync();
+        }
         public async Task<Game> GetUserLastGame(int userId)
         { 
            var gameEntity = _context.Games.Where(x => x.UserId == userId).LastOrDefault();
            return gameEntity;
         }
 
-        public async Task<bool> UpdateGame(Game gameEntity)
-        {
-            _context.Update<Game>(gameEntity);
-
-           await _context.SaveAsync();
-
-            return true;
-        }
-
         public async Task<Game> SaveGame(Game game)
-        {
-            Game gameEntity;
-
-            
+        {           
+            //TODO: Investigation
             _context.Games.Add(game);
-            _context.SaveChanges();
+            await _context.SaveAsync();
 
-            gameEntity = _context.Games.Where(x => x.UserId == game.UserId)
+            var gameEntity = _context.Games.Where(x => x.UserId == game.UserId)
                     .OrderByDescending(x => x.Id).FirstOrDefault();
 
-            SaveGameCoins(gameEntity);
+            await SaveGameCoins(gameEntity);
 
             return gameEntity;
         }
 
         public async Task<Coin> GetCoinByPosition(Coin coin)
         {
-            using (_context)
-            {
-                coin =  _context.Coins.Where(x => x.GameId == coin.GameId && x.Position == coin.Position)
-                    .FirstOrDefault();
+            coin =  _context.Coins
+                .Where(x => x.GameId == coin.GameId && x.Position == coin.Position)
+                .FirstOrDefault();
 
-                if (coin == null) return null;
+            if (coin == null) return null;                
 
-                coin.IsOpened = true;
-
-                _context.SaveChanges();
-            }
-
+            await _context.SaveAsync();
             return coin;
         }
 
@@ -75,7 +75,7 @@ namespace GoldJack.DataAccess.Repositories
         //private functions
         #region 
 
-        private void SaveGameCoins(Game game)
+        private async Task SaveGameCoins(Game game)
         {
             List<Coin> coins = new List<Coin>();
 
@@ -93,7 +93,7 @@ namespace GoldJack.DataAccess.Repositories
 
 
             _context.Coins.AddRange(coins);
-            _context.SaveChanges();
+            await _context.SaveAsync();
         }
 
         #endregion

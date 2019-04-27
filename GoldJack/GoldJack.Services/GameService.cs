@@ -44,6 +44,7 @@ namespace GoldJack.Services
 
             if (game == null) return false;
 
+            //Check if can do Cashback
             game.IsCashback = true;
             game.IsEnded = true;
 
@@ -82,13 +83,57 @@ namespace GoldJack.Services
 
             if (coinEntity == null) return null;
 
-            model = _mapper.Map<Coin, CoinModel>(coinEntity);
+            coinEntity.IsOpened = true;
 
-            return model;
+            await _gameRepository.UpdateCoin(coinEntity);
+
+            var gameEntity = await _gameRepository.GetGameById(model.GameId);
+
+            gameEntity = IsGameEnded(gameEntity);
+
+            //Return only requsted coin 
+            gameEntity.Coins = null;
+
+            coinEntity.Game = gameEntity;
+
+            var coinModel = _mapper.Map<Coin, CoinModel>(coinEntity);
+
+            return coinModel;
         }
 
 
         #region private functions
+
+        private Game IsGameEnded(Game game)
+        {
+            var openCoins = game.Coins.Where(x => x.IsOpened);
+            var coinsSum = game.Coins.Where(x => x.IsOpened).Select(x => x.Value).Sum();
+
+            if (openCoins.Count() == GameConstants.OpenedCoinsMaxCount)
+            {
+                game.IsEnded = true;
+
+                if (coinsSum <= game.EndRange)
+                {
+                    
+                    game.IsWin = true;
+                }
+                else
+                {
+                    game.IsWin = false;
+                }
+            }
+            else
+            {
+                if(coinsSum >= game.EndRange)
+                {
+                    game.IsEnded = true;
+                    game.IsWin = false;
+                }
+            }
+
+            return game;
+        }
 
         private List<Coin> CreateCoins()
         {
