@@ -34,7 +34,7 @@ namespace GoldJack.Controllers
             }
             catch(Exception e)
             {
-                return new BadRequestObjectResult(e); 
+                return StatusCode(500, e.Message);
             }
             
         }
@@ -49,7 +49,7 @@ namespace GoldJack.Controllers
             }
             catch(Exception e)
             {
-                throw e;
+                return StatusCode(500, e.Message);
             }
             
         }
@@ -80,7 +80,7 @@ namespace GoldJack.Controllers
             }
             catch(Exception e)
             {
-                throw e;
+                return StatusCode(500, e.Message);
             }
         }
 

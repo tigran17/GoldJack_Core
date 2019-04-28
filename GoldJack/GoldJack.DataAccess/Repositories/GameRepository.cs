@@ -35,8 +35,17 @@ namespace GoldJack.DataAccess.Repositories
         }
         public async Task<Game> GetUserLastGame(int userId)
         { 
-           var gameEntity = _context.Games.Where(x => x.UserId == userId).LastOrDefault();
-           return gameEntity;
+           var gameEntity = _context.Games.Where(x => x.UserId == userId)
+                .OrderByDescending(x => x.Id).FirstOrDefault();
+
+            return gameEntity;
+        }
+
+        public async Task<List<Coin>> GetGameOpenedCoins(int gameId)
+        {
+            var coins = _context.Coins.Where(x => x.GameId == gameId && x.IsOpened).ToList();
+
+            return coins;
         }
 
         public async Task<Game> SaveGame(Game game)
@@ -48,7 +57,7 @@ namespace GoldJack.DataAccess.Repositories
             var gameEntity = _context.Games.Where(x => x.UserId == game.UserId)
                     .OrderByDescending(x => x.Id).FirstOrDefault();
 
-            await SaveGameCoins(gameEntity);
+           // await SaveGameCoins(gameEntity);
 
             return gameEntity;
         }
@@ -75,26 +84,26 @@ namespace GoldJack.DataAccess.Repositories
         //private functions
         #region 
 
-        private async Task SaveGameCoins(Game game)
-        {
-            List<Coin> coins = new List<Coin>();
+        //private async Task SaveGameCoins(Game game)
+        //{
+        //    List<Coin> coins = new List<Coin>();
 
-            foreach(var coin in game.Coins)
-            {
-                var coinEntity = new Coin
-                {
-                    GameId = game.Id,
-                    Position = coin.Position,
-                    Value = coin.Value
-                };
+        //    foreach(var coin in game.Coins)
+        //    {
+        //        var coinEntity = new Coin
+        //        {
+        //            GameId = game.Id,
+        //            Position = coin.Position,
+        //            Value = coin.Value
+        //        };
 
-                coins.Add(coinEntity);
-            }
+        //        coins.Add(coinEntity);
+        //    }
 
 
-            _context.Coins.AddRange(coins);
-            await _context.SaveAsync();
-        }
+        //    _context.Coins.AddRange(coins);
+        //    await _context.SaveAsync();
+        //}
 
         #endregion
 

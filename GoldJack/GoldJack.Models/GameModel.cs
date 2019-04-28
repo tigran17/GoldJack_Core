@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GoldJack.Entities;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -27,5 +28,7 @@ namespace GoldJack.Models
         public Int16 GameNumber { get; set; }
 
         public double UserBalance { get; set; }
+
+        public List<Coin> Coins { get; set; }
     }
 }

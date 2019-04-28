@@ -31,6 +31,8 @@ namespace GoldJack.Services
 
             var gameEntity = await _gameRepository.GetUserLastGame(userId);
 
+            gameEntity.Coins =  await _gameRepository.GetGameOpenedCoins(gameEntity.Id);
+
             var model = _mapper.Map<GameModel>(gameEntity);
 
             return model;
@@ -44,7 +46,8 @@ namespace GoldJack.Services
 
             if (game == null) return false;
 
-            //Check if can do Cashback
+            if (!CheckForCashback(game)) return false;
+
             game.IsCashback = true;
             game.IsEnded = true;
 
@@ -103,6 +106,18 @@ namespace GoldJack.Services
 
 
         #region private functions
+
+        private bool CheckForCashback(Game game)
+        {
+            var coinsSum = game.Coins.Where(x => x.IsOpened).Select(x => x.Value).Sum();
+
+            if(coinsSum >= game.StartRange && coinsSum <= game.EndRange)
+            {
+                return true;
+            }
+
+            return false;
+        }
 
         private Game IsGameEnded(Game game)
         {
