@@ -94,6 +94,8 @@ namespace GoldJack.Services
 
             gameEntity = IsGameEnded(gameEntity);
 
+            await _gameRepository.UpdateGame(gameEntity);
+
             //Return only requsted coin 
             gameEntity.Coins = null;
 
