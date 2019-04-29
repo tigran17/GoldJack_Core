@@ -1,6 +1,7 @@
 ﻿using GoldJack.DataAccess.Context;
 using GoldJack.Entities;
 using GoldJack.Interfaces.DAL;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -76,7 +77,9 @@ namespace GoldJack.DataAccess.Repositories
 
         public async Task<Game> GetGameById(int gameId)
         {
-            var gameEntity = _context.Games.Where(x => x.Id == gameId).FirstOrDefault();
+            var gameEntity = _context.Games.Where(x => x.Id == gameId)
+                .Include(c => c.Coins)
+                .FirstOrDefault();
 
             return gameEntity;
         }

@@ -17,6 +17,9 @@ namespace GoldJack.DataAccess.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Game>()
+                .HasMany(c => c.Coins)
+                .WithOne(g => g.Game);
         }
 
         //entities

@@ -28,7 +28,7 @@ namespace GoldJack.Services
             var userId = 6; //HARD CODE
 
             //var gameEntity = _mapper.Map<Game>(model);
-
+            //Bouns Game Logic
             var gameEntity = await _gameRepository.GetUserLastGame(userId);
 
             gameEntity.Coins =  await _gameRepository.GetGameOpenedCoins(gameEntity.Id);
@@ -73,6 +73,8 @@ namespace GoldJack.Services
 
             gameEntity = await _gameRepository.SaveGame(gameEntity);
 
+            gameEntity.Coins = null;
+
             var gameModel = _mapper.Map<Game, GameModel>(gameEntity);
 
             return gameModel;
@@ -95,6 +97,8 @@ namespace GoldJack.Services
             gameEntity = IsGameEnded(gameEntity);
 
             await _gameRepository.UpdateGame(gameEntity);
+
+            //Return inEnded true
 
             //Return only requsted coin 
             gameEntity.Coins = null;
