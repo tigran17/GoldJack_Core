@@ -26,12 +26,12 @@ namespace GoldJack.Services
         {
             var startedGames = new List<GameModel>();
             //TODO: Should initialize User
-            var userId = 6; //HARD CODE
+            var userId = 8; //HARD CODE
 
             //Bouns Game Logic
             var gameEntity = await _gameRepository.GetUserLastGame(userId);
 
-            if (gameEntity.IsEnded) return null;
+            if (gameEntity == null || gameEntity.IsEnded) return null;
 
             gameEntity.Coins = await _gameRepository.GetGameOpenedCoins(gameEntity.Id);
 
@@ -67,6 +67,7 @@ namespace GoldJack.Services
 
             game.IsCashback = true;
 
+            //TODO: Logic for bonus game
             if(!game.IsBonusGame) game.IsEnded = true;
 
             //gameEntity Cashback to  User balance
@@ -80,7 +81,7 @@ namespace GoldJack.Services
         {
             //TODO:Check User Balance
             //TODO: Should init User
-            model.UserId = 6;  //Hard Code
+            model.UserId = 8;  //Hard Code
             SetRange(model);
 
             var gameEntity = _mapper.Map<GameModel, Game>(model);
@@ -244,7 +245,10 @@ namespace GoldJack.Services
         {
             var lastGame = await _gameRepository.GetUserLastGame(userId);
 
-            if (!lastGame.IsBonusGame) return 0;
+            if (lastGame == null || !lastGame.IsBonusGame)
+            {
+                return (short)GameConstants.BonusGameMinNumber;
+            } 
             else
             {
                 if (lastGame.GameNumber == GameConstants.BonusGameMaxNumber)
