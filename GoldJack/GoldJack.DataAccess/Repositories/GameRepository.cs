@@ -28,6 +28,15 @@ namespace GoldJack.DataAccess.Repositories
             return true;
         }
 
+        public async Task<bool> UpdateGames(List<Game> gameEntities)
+        {
+            _context.UpdateRange(gameEntities);
+
+            await _context.SaveAsync();
+
+            return true;
+        }
+
         public async Task UpdateCoin(Coin coinEntity)
         {
             _context.Update<Coin>(coinEntity);
@@ -44,7 +53,8 @@ namespace GoldJack.DataAccess.Repositories
 
         public async Task<List<Coin>> GetGameOpenedCoins(int gameId)
         {
-            var coins = _context.Coins.Where(x => x.GameId == gameId && x.IsOpened).ToList();
+            var coins = _context.Coins.Where(x => x.GameId == gameId && x.IsOpened)
+                .ToList();
 
             return coins;
         }
@@ -56,7 +66,9 @@ namespace GoldJack.DataAccess.Repositories
             await _context.SaveAsync();
 
             var gameEntity = _context.Games.Where(x => x.UserId == game.UserId)
-                    .OrderByDescending(x => x.Id).FirstOrDefault();
+                    //.Include(c => c.Coins)
+                    .OrderByDescending(x => x.Id)
+                    .FirstOrDefault();
 
            // await SaveGameCoins(gameEntity);
 
@@ -73,6 +85,22 @@ namespace GoldJack.DataAccess.Repositories
 
             await _context.SaveAsync();
             return coin;
+        }
+
+        public async Task<List<Game>> GetAllBonusGames(int userId)
+        {
+            var allBonusGames = await _context.Games
+                .Where(x => x.UserId == userId && x.IsBonusGame && !x.IsEnded)
+                //.Select(i => new Game {
+                //    GameNumber = i.GameNumber,
+                //    IsBonusGame = i.IsBonusGame,
+                //    IsCashback = i.IsCashback,
+                //    IsWin = i.IsWin
+                //})
+                .OrderBy(g => g.Id)
+                .AsNoTracking().ToListAsync();
+
+            return allBonusGames;
         }
 
         public async Task<Game> GetGameById(int gameId)

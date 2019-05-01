@@ -14,5 +14,8 @@ namespace GoldJack.Constants
         public static readonly int MinCoinValue = 1;
         public static readonly int CoinCount = 20;
         public static readonly int OpenedCoinsMaxCount = 3;
+        public static readonly int BonusGameMaxNumber = 5;
+        public static readonly int BonusGameMinNumber = 1;
+
     }
 }

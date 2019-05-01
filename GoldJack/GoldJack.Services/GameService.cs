@@ -22,20 +22,37 @@ namespace GoldJack.Services
             _gameRepository = gameRepository;
             _mapper = mapper;
         }
-        public async Task<GameModel> GetGame()
+        public async Task<List<GameModel>> GetGame()
         {
+            var startedGames = new List<GameModel>();
             //TODO: Should initialize User
             var userId = 6; //HARD CODE
 
-            //var gameEntity = _mapper.Map<Game>(model);
             //Bouns Game Logic
             var gameEntity = await _gameRepository.GetUserLastGame(userId);
 
-            gameEntity.Coins =  await _gameRepository.GetGameOpenedCoins(gameEntity.Id);
+            if (gameEntity.IsEnded) return null;
 
-            var model = _mapper.Map<GameModel>(gameEntity);
+            gameEntity.Coins = await _gameRepository.GetGameOpenedCoins(gameEntity.Id);
 
-            return model;
+            if (!gameEntity.IsBonusGame)
+            {
+                var gameModel = _mapper.Map<GameModel>(gameEntity);
+                startedGames.Add(gameModel);
+            }
+            else
+            {
+                var bonusGames = await _gameRepository.GetAllBonusGames(userId);
+
+                //Change list's last item
+                bonusGames[bonusGames.Count - 1] = gameEntity;
+
+                var bonusGamesModel = _mapper.Map<List<GameModel>>(bonusGames);
+
+                startedGames.AddRange(bonusGamesModel);
+            }
+
+            return startedGames;
         }
 
         public async Task<bool> CashBack(GameModel model)
@@ -49,7 +66,8 @@ namespace GoldJack.Services
             if (!CheckForCashback(game)) return false;
 
             game.IsCashback = true;
-            game.IsEnded = true;
+
+            if(!game.IsBonusGame) game.IsEnded = true;
 
             //gameEntity Cashback to  User balance
 
@@ -70,6 +88,11 @@ namespace GoldJack.Services
             gameEntity.Coins = CreateCoins();
 
             ShuffleCoins(gameEntity.Coins);
+
+            if (model.IsBonusGame)
+            {
+                gameEntity.GameNumber = await GetGameNumber(model.UserId);
+            } 
 
             gameEntity = await _gameRepository.SaveGame(gameEntity);
 
@@ -94,11 +117,11 @@ namespace GoldJack.Services
 
             var gameEntity = await _gameRepository.GetGameById(model.GameId);
 
-            gameEntity = IsGameEnded(gameEntity);
+            //Check is game ended and update game
 
-            await _gameRepository.UpdateGame(gameEntity);
+            await CheckEndGame(gameEntity);
 
-            //Return inEnded true
+            //await _gameRepository.UpdateGame(gameEntity);
 
             //Return only requsted coin 
             gameEntity.Coins = null;
@@ -125,14 +148,22 @@ namespace GoldJack.Services
             return false;
         }
 
-        private Game IsGameEnded(Game game)
+        private async Task CheckEndGame(Game game)
         {
             var openCoins = game.Coins.Where(x => x.IsOpened);
             var coinsSum = game.Coins.Where(x => x.IsOpened).Select(x => x.Value).Sum();
 
             if (openCoins.Count() == GameConstants.OpenedCoinsMaxCount)
             {
-                game.IsEnded = true;
+                if(!game.IsBonusGame)
+                    game.IsEnded = true;
+                else
+                {
+                    if(game.GameNumber == GameConstants.BonusGameMaxNumber)
+                    {
+                        await EndBonusGame(game);
+                    }
+                }
 
                 if (coinsSum <= game.EndRange)
                 {
@@ -148,12 +179,32 @@ namespace GoldJack.Services
             {
                 if(coinsSum >= game.EndRange)
                 {
-                    game.IsEnded = true;
+                    if(!game.IsBonusGame)
+                    {
+                        game.IsEnded = true;
+                    }
+                    else
+                    {
+                        if (game.GameNumber == GameConstants.BonusGameMaxNumber)
+                        {
+                            await EndBonusGame(game);
+                        }
+                    }
+                    
                     game.IsWin = false;
                 }
             }
 
-            return game;
+            await _gameRepository.UpdateGame(game);
+        }
+
+        public async Task EndBonusGame(Game game)
+        {
+            var startedBonusGames = await _gameRepository.GetAllBonusGames(game.UserId);
+            startedBonusGames.Select(c => { c.IsEnded = true; return c; }).ToList();
+
+            await _gameRepository.UpdateGames(startedBonusGames);
+
         }
 
         private List<Coin> CreateCoins()
@@ -187,6 +238,20 @@ namespace GoldJack.Services
             //string range = String.Format("{0} - {1}", randomNumber, randomNumber + GameConstants.Range);
             gameModel.StartRange = randomNumber;
             gameModel.EndRange = (short)(randomNumber + GameConstants.Range);
+        }
+
+        private async Task<short> GetGameNumber(int userId)
+        {
+            var lastGame = await _gameRepository.GetUserLastGame(userId);
+
+            if (!lastGame.IsBonusGame) return 0;
+            else
+            {
+                if (lastGame.GameNumber == GameConstants.BonusGameMaxNumber)
+                    return (short)GameConstants.BonusGameMinNumber;
+
+                return ++lastGame.GameNumber;
+            }
         }
 
         #endregion

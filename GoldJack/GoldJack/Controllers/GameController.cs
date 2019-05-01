@@ -40,7 +40,7 @@ namespace GoldJack.Controllers
         }
 
         [HttpGet("getgame")]
-        public async Task<ActionResult<GameModel>> GetGame()
+        public async Task<ActionResult<List<GameModel>>> GetGame()
         {
             try
             {
@@ -59,6 +59,8 @@ namespace GoldJack.Controllers
         {
             try
             {
+                if (model.IsCashback || model.IsEnded) return false;
+
                 var result = await _gameService.CashBack(model);
                 return result;
             }
