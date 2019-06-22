@@ -26,8 +26,7 @@ namespace GoldJack.Services
         {
             var startedGames = new List<GameModel>();
             //TODO: Should initialize User
-            var userId = 8; //HARD CODE
-
+            var userId = 9; //HARD CODE
             //Bouns Game Logic
             var gameEntity = await _gameRepository.GetUserLastGame(userId);
 
@@ -132,6 +131,13 @@ namespace GoldJack.Services
             var coinModel = _mapper.Map<Coin, CoinModel>(coinEntity);
 
             return coinModel;
+        }
+
+        public async Task<UserModel> GetUserById(int userId)
+        {
+            var user = await _gameRepository.GetUserById(userId);
+
+            return _mapper.Map<User, UserModel>(user);
         }
 
 
@@ -257,6 +263,8 @@ namespace GoldJack.Services
                 return ++lastGame.GameNumber;
             }
         }
+
+        
 
         #endregion
     }

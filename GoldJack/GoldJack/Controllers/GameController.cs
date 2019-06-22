@@ -40,18 +40,19 @@ namespace GoldJack.Controllers
         }
 
         [HttpGet("getgame")]
-        public async Task<ActionResult<List<GameModel>>> GetGame()
+        public async Task<ActionResult> GetGame()
         {
+            var userId = 1;
             try
             {
-                var result = await _gameService.GetGame();
-                return result;
+                var result = await _gameService.GetUserById(userId);
+                return Ok(result);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return StatusCode(500, e.Message);
             }
-            
+
         }
 
         [HttpPost("cashback")]

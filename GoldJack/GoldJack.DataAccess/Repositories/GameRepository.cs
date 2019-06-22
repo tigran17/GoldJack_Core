@@ -105,11 +105,21 @@ namespace GoldJack.DataAccess.Repositories
 
         public async Task<Game> GetGameById(int gameId)
         {
-            var gameEntity = _context.Games.Where(x => x.Id == gameId)
+            var gameEntity = await  _context.Games.Where(x => x.Id == gameId)
                 .Include(c => c.Coins)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             return gameEntity;
+        }
+
+        public async Task<User> GetUserById(int userId)
+        {
+            var userEntity = await _context.Users.Where(x => x.Id == userId)
+                .Select(x => new User { Id = x.Id, Name = x.Name, Surename = x.Surename, Balance = x.Balance })
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            return userEntity;
         }
 
         //private functions

@@ -17,6 +17,9 @@ namespace GoldJack.Mapper
 
             CreateMap<Coin, CoinModel>();
             CreateMap<CoinModel, Coin>();
+
+            CreateMap<User, UserModel>();
+            CreateMap<UserModel, User>();
         }
             
 

@@ -8,6 +8,7 @@ namespace GoldJack.Interfaces.Services
 {
     public interface IGameService
     {
+        Task<UserModel> GetUserById(int userId);
         Task<List<GameModel>> GetGame();
         Task<GameModel> StartGame(GameModel model);
         Task<CoinModel> GetCoinByPosition(CoinModel model);
