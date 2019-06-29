@@ -103,6 +103,20 @@ namespace GoldJack.Services
             return gameModel;
         }
 
+        public async Task<bool> PrepareToStartNewGame(int userId)
+        {
+            var game = await _gameRepository.GetUserLastGame(userId);
+
+            if (game == null) return true;
+
+            game.IsEnded = true;
+
+            await _gameRepository.UpdateGame(game);
+
+            return true;
+        }
+
+
         public async Task<CoinModel> GetCoinByPosition(CoinModel model)
         {
             var coinEntity = _mapper.Map<Coin>(model);
@@ -184,7 +198,7 @@ namespace GoldJack.Services
             }
             else
             {
-                if(coinsSum >= game.EndRange)
+                if(coinsSum > game.EndRange)
                 {
                     if(!game.IsBonusGame)
                     {
@@ -251,20 +265,14 @@ namespace GoldJack.Services
         {
             var lastGame = await _gameRepository.GetUserLastGame(userId);
 
-            if (lastGame == null || !lastGame.IsBonusGame)
+            if (lastGame == null || !lastGame.IsBonusGame 
+                || lastGame.GameNumber == GameConstants.BonusGameMaxNumber)
             {
                 return (short)GameConstants.BonusGameMinNumber;
-            } 
-            else
-            {
-                if (lastGame.GameNumber == GameConstants.BonusGameMaxNumber)
-                    return (short)GameConstants.BonusGameMinNumber;
-
-                return ++lastGame.GameNumber;
             }
-        }
 
-        
+            return ++lastGame.GameNumber;
+        }
 
         #endregion
     }

@@ -13,5 +13,6 @@ namespace GoldJack.Interfaces.Services
         Task<GameModel> StartGame(GameModel model);
         Task<CoinModel> GetCoinByPosition(CoinModel model);
         Task<bool> CashBack(GameModel model);
+        Task<bool> PrepareToStartNewGame(int userId);
     }
 }

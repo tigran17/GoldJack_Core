@@ -45,16 +45,16 @@ namespace GoldJack.DataAccess.Repositories
         }
         public async Task<Game> GetUserLastGame(int userId)
         { 
-           var gameEntity = _context.Games.Where(x => x.UserId == userId)
-                .OrderByDescending(x => x.Id).FirstOrDefault();
+           var gameEntity = await _context.Games.Where(x => x.UserId == userId)
+                .OrderByDescending(x => x.Id).FirstOrDefaultAsync();
 
             return gameEntity;
         }
 
         public async Task<List<Coin>> GetGameOpenedCoins(int gameId)
         {
-            var coins = _context.Coins.Where(x => x.GameId == gameId && x.IsOpened)
-                .ToList();
+            var coins = await _context.Coins.Where(x => x.GameId == gameId && x.IsOpened)
+                .ToListAsync();
 
             return coins;
         }
@@ -65,21 +65,14 @@ namespace GoldJack.DataAccess.Repositories
             _context.Games.Add(game);
             await _context.SaveAsync();
 
-            var gameEntity = _context.Games.Where(x => x.UserId == game.UserId)
-                    //.Include(c => c.Coins)
-                    .OrderByDescending(x => x.Id)
-                    .FirstOrDefault();
-
-           // await SaveGameCoins(gameEntity);
-
-            return gameEntity;
+            return game;
         }
 
         public async Task<Coin> GetCoinByPosition(Coin coin)
         {
-            coin =  _context.Coins
+            coin =  await _context.Coins
                 .Where(x => x.GameId == coin.GameId && x.Position == coin.Position)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             if (coin == null) return null;                
 

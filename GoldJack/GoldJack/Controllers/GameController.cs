@@ -26,11 +26,11 @@ namespace GoldJack.Controllers
             {
                 if(model.Bet <= 0)
                 {
-                    throw new Exception("Bet value is invalid");
+                   return BadRequest("Bet value is invalid");
                 }
 
                 var result = await _gameService.StartGame(model);
-                return result;
+                return Ok(result);
             }
             catch(Exception e)
             {
@@ -46,6 +46,9 @@ namespace GoldJack.Controllers
             try
             {
                 var result = await _gameService.GetUserById(userId);
+
+                await _gameService.PrepareToStartNewGame(userId);
+
                 return Ok(result);
             }
             catch (Exception e)
