@@ -85,14 +85,21 @@ namespace GoldJack.Services
 
             var gameEntity = _mapper.Map<GameModel, Game>(model);
 
-            gameEntity.Coins = CreateCoins();
-
-            ShuffleCoins(gameEntity.Coins);
-
             if (model.IsBonusGame)
             {
                 gameEntity.GameNumber = await GetGameNumber(model.UserId);
-            } 
+            }
+
+            gameEntity.Coins = CreateCoins();
+            
+            if(model.IsBonusGame && gameEntity.GameNumber == GameConstants.BonusGameMaxNumber)
+            {
+                gameEntity.Coins = ShuffleForLastGame(gameEntity.Coins);
+            }
+            else
+            {
+                ShuffleCoins(gameEntity.Coins);
+            }
 
             gameEntity = await _gameRepository.SaveGame(gameEntity);
 
@@ -250,6 +257,34 @@ namespace GoldJack.Services
             {
                 item.Position = ++i;
             }
+        }
+
+        private List<Coin> ShuffleForLastGame(List<Coin> coins)
+        {
+            var shuffledList = new List<Coin>();
+            var itemIndex = 0;
+            for (int i = 0; i < GameConstants.MatrixHight; i++)
+            {
+                var row = new List<Coin>();
+                
+                for (int j = 0; j < GameConstants.MatrixWeight; j++)
+                {
+                    
+                    row.Add(coins[0]);
+                    coins.RemoveAt(0);
+                }
+
+                Random rnd = new Random();
+                row = row.OrderBy(x => rnd.Next()).ToList();
+
+                foreach (var item in row)
+                {
+                    item.Position = ++itemIndex;
+                }
+
+                shuffledList.AddRange(row);
+            }
+            return shuffledList;
         }
 
         private void SetRange(GameModel gameModel)

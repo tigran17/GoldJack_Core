@@ -91,7 +91,7 @@ namespace GoldJack.DataAccess.Repositories
                 //    IsWin = i.IsWin
                 //})
                 .OrderBy(g => g.Id)
-                .AsNoTracking().ToListAsync();
+                .ToListAsync();
 
             return allBonusGames;
         }
